@@ -12,14 +12,23 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     };
     // html内容
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+	webviewView.webview.onDidReceiveMessage((msg) => {
+		console.log('接收到的vue页面值：',msg);
+	});
+	webviewView.webview.postMessage({
+		command: 'wo cao le',
+		text: "我你爹"
+	});
+
   }
-  
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
+		//js资源
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'gui/assets', 'index.js'));
 		console.log('vscode::',this._context.extensionMode, 'meiju:',vscode.ExtensionMode.Development,"ce","");
-		// Do the same for the stylesheet.
+		//css
 		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'gui/assets', 'index.css'));
+		// 接收发送内容制定
 		// handleMessages(webview)
 		return `
 			<!DOCTYPE html>

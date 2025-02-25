@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import HelloWorld from './components/HelloWorld.vue'
+import { ref } from 'vue';
+
+const vv = ref({})
+window.addEventListener('message', event => {
+    vv.value = event.data;
+    });
 </script>
 
 <template>
   <div>
+    <div style="width: 300px; height: 200px; color:brown">{{vv}}</div>
     <a href="https://vite.dev" target="_blank">
       <img src="./assets/vite.svg" class="logo" alt="Vite logo" />
     </a>

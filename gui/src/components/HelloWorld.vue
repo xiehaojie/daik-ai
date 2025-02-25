@@ -1,16 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
+import { onMounted, ref } from 'vue'
+import { ideMessenger } from '../context/ideMessenger';
 defineProps<{ msg: string }>()
-
 const count = ref(0)
+const infoRef = ref('')
+const onClick = ()=>{
+  count.value +=1
+  ideMessenger.send(count.value)
+}
+onMounted(() => {
+})
 </script>
 
 <template>
   <h1>{{ msg }}</h1>
 
   <div class="card">
-    <button type="button" @click="count++">count is {{ count }}</button>
+    <button type="button" @click="onClick">count is {{ count }}</button>
+    <p style="color:red">{{infoRef}}</p>
     <p>
       Edit
       <code>components/HelloWorld.vue</code> to test HMR
