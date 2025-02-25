@@ -11,14 +11,14 @@ const esbuildProblemMatcherPlugin = {
 
 	setup(build) {
 		build.onStart(() => {
-			console.log('[watch] build started');
+			console.log('[watch] 编译开始');
 		});
 		build.onEnd((result) => {
 			result.errors.forEach(({ text, location }) => {
 				console.error(`✘ [ERROR] ${text}`);
 				console.error(`    ${location.file}:${location.line}:${location.column}:`);
 			});
-			console.log('[watch] build finished');
+			console.log('[watch] 编译结束');
 		});
 	},
 };

@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 export class SidebarProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = "daik-view-sidebar";
-  constructor(protected _extensionUri: vscode.Uri) {}
+  constructor(protected _extensionUri: vscode.Uri,private _context: vscode.ExtensionContext) {}
 
   public resolveWebviewView(webviewView: vscode.WebviewView) {
     console.log('this.context.extensionUri',this._extensionUri);
@@ -17,7 +17,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'gui/assets', 'index.js'));
-
+		console.log('vscode::',this._context.extensionMode, 'meiju:',vscode.ExtensionMode.Development,"ce","");
 		// Do the same for the stylesheet.
 		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'gui/assets', 'index.css'));
 		// handleMessages(webview)

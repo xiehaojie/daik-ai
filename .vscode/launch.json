@@ -1,0 +1,29 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "扩展调试",
+            "type": "extensionHost",
+            "request": "launch",
+            // "cwd": "${workspaceFolder}/inlineCompetion",
+            "args": [
+              // Pass a directory to manually test in
+            //   "${workspaceFolder}/manual-testing-sandbox",
+            //   "${workspaceFolder}/manual-testing-sandbox/test.js",
+              "--extensionDevelopmentPath=${workspaceFolder}/inlineCompetion"
+            ],
+            "pauseForSourceMap": false,
+            "outFiles": ["${workspaceFolder}/inlineCompetion/dist/extension.js"],
+            "preLaunchTask": "npm:watch",
+            "env": {
+              // "CONTROL_PLANE_ENV": "local",
+            //   "CONTINUE_GLOBAL_DIR": "${workspaceFolder}/extensions/.continue-debug"
+              // "staging" for the preview deployment	        "CONTINUE_GLOBAL_DIR": "${workspaceFolder}/extensions/.continue-debug"
+              // "local" for entirely local development of control plane/proxy
+            }
+          },
+    ]
+}

@@ -45,7 +45,7 @@ export class VsCodeExtension {
         new DAIKCompletionProvider(this.llmOpenAI, this.debouncer)
       )
     );
-    const sideBarWebview = new SidebarProvider(context.extensionUri);
+    const sideBarWebview = new SidebarProvider(context.extensionUri,context);
     //注册容器页面view
     try {
       context.subscriptions.push(

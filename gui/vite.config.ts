@@ -9,7 +9,7 @@ export default defineConfig({
     rollupOptions: {
       // external: ["vscode-webview"],
       output: {
-        dir:"../inlineCompetion/dist/gui",
+        dir:"../inlineCompetion/gui",
         entryFileNames: `assets/[name].js`,
         chunkFileNames: `assets/[name].js`,
         assetFileNames: `assets/[name].[ext]`,
