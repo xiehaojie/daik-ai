@@ -1,41 +1,48 @@
 <template>
-  <div class="chat-container" ref="chatMessagesContainer">
+  <div class="chat-container">
     <!-- 聊天记录展示区域 -->
-    <div class="chat-messages">
+    <div class="chat-messages" ref="chatMessagesContainer">
       <TransitionGroup name="message" tag="div">
         <div v-for="(message, index) in chatMessages" :key="index"
-          :class="['message-item', message.sender === '你' ? 'user' : 'ai']">
-          <div class="message-header" :class="{ 'user-header': message.sender === '你' }">
-            <span class="sender" :class="{ 'user-header': message.sender === '你' }">{{ message.sender }}</span>
-            <el-avatar v-if="message.sender === '你'" class="user-avatar"
-              src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+          :class="['message-item', message.sender === 'user' ? 'user' : 'ai']">
+          <div :class="[message.sender === 'user' ? 'user-header' : 'message-header']">
+            <span :class="[message.sender === 'user' ? 'user-header-sender' : 'message-header-sender']">{{
+              message.sender
+            }}</span>
+            <el-avatar v-if="message.sender === 'user'" class="user-avatar" :src="userIcon" />
+            <el-avatar v-else class="user-avatar" :src="chatIcon" />
 
-            <div class="timestamp-container">
-              <span class="timestamp">{{ message.timestamp }}</span>
-            </div>
           </div>
-          <el-card shadow="hover" :class="['message-bubble', message.sender === '你' ? 'user-bubble' : 'ai-bubble']">
+          <el-card :class="['message-bubble', message.sender === 'user' ? 'user-bubble' : 'ai-bubble']">
+            <div class="timestamp">{{ message.timestamp }}</div>
             <div class="message-content" :style="{ whiteSpace: 'pre-wrap' }">
               {{ message.content }}
             </div>
           </el-card>
+
         </div>
+
       </TransitionGroup>
     </div>
     <!-- 聊天输入区域 -->
     <div class="chat-input">
-      <el-input v-model="inputMessage" placeholder="请输入消息" @keyup.enter="sendMessage" :disabled="isLoading"></el-input>
-      <el-button @click="sendMessage" :loading="isLoading">发送</el-button>
+      <el-input v-model="inputMessage" size="large" placeholder="请输入消息" @keyup.enter="sendMessage"
+        :disabled="isLoading"></el-input>
+      <div class="chat-input-button" @click="sendMessage">
+        <img src="../assets/send.png">
+      </div>
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import { ref, nextTick } from 'vue';
+import chatIcon from "../assets/chat.png"
+import userIcon from "../assets/user.png"
+
 
 // 定义聊天消息数组
 const chatMessages = ref<any>([
-  { sender: 'MarsCodeAI', content: '欢迎使用聊天功能！' }
+  { sender: 'DAIK', content: '欢迎使用聊天功能！' }
 ]);
 
 const chatMessagesContainer = ref<HTMLElement | null>(null);
@@ -51,7 +58,7 @@ const sendMessage = async () => {
   if (inputMessage.value.trim() !== '') {
     // 添加用户消息到聊天记录
     chatMessages.value.push({
-      sender: '你',
+      sender: 'user',
       content: inputMessage.value,
       timestamp: new Date().toLocaleTimeString()
     });
@@ -62,15 +69,16 @@ const sendMessage = async () => {
 
     isLoading.value = true;
     // 模拟 AI 回复
-    setTimeout(() => {
+    setTimeout(async () => {
       chatMessages.value.push({
-        sender: 'MarsCodeAI',
+        sender: 'DAIK',
         content: '这是 AI 的回复示例。',
         timestamp: new Date().toLocaleTimeString()
       });
       isLoading.value = false;
 
       // AI 回复后也滚动到底部
+      await nextTick();
       scrollToBottom();
     }, 1000);
 
@@ -105,65 +113,22 @@ const scrollToBottom = () => {
   }
 };
 </script>
-
 <style scoped>
-/* 调整整体配色 */
-.chat-container {
-  background-color: #1e1e1e;
-  /* 深色背景 */
-}
-
 /* 调整消息卡片样式 */
 .message-item.user .el-card {
   background-color: #1976d2;
   /* Material Blue 700 */
   color: #ffffff;
+  position: relative;
+  /* 添加相对定位 */
 }
 
 .message-item.ai .el-card {
   background-color: #424242;
   /* Material Grey 800 */
   color: #ffffff;
-}
-
-/* 调整输入区域样式 */
-.chat-input {
-  background-color: #2d2d2d;
-  /* 稍浅的深色 */
-}
-
-/* 调整Element Plus组件配色 */
-.chat-input .el-input :deep(.el-input__inner) {
-  background-color: #333333;
-  border-color: #444444;
-  color: #ffffff;
-}
-
-.chat-input .el-button {
-  background-color: #1976d2;
-  /* Material Blue 700 */
-  border-color: #1976d2;
-  color: #ffffff;
-}
-
-.chat-input .el-button:hover {
-  background-color: #1565c0;
-  /* Material Blue 800 */
-  border-color: #1565c0;
-}
-
-.chat-input .el-button:active {
-  background-color: #0d47a1;
-  /* Material Blue 900 */
-  border-color: #0d47a1;
-}
-
-.chat-input .el-button.is-disabled {
-  background-color: #424242;
-  /* Material Grey 800 */
-  border-color: #424242;
-  color: #757575;
-  /* Material Grey 600 */
+  position: relative;
+  /* 添加相对定位 */
 }
 
 /* 调整消息卡片阴影 */
@@ -176,44 +141,24 @@ const scrollToBottom = () => {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* 调整消息头部样式 */
-.message-header {
-  color: #bdbdbd;
-  /* Material Grey 400 */
-}
-
 .user-header {
-  background-color: rgba(25, 118, 210, 0.1);
-  /* Material Blue 700 with opacity */
-}
-
-.user-header .sender {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  align-items: center;
   color: white;
-  /* Material Blue 300 */
+  padding: 5px;
+  font-size: 20px;
+  font-weight: 600;
 }
 
-/* 调整时间显示样式 */
-.timestamp-container {
-  color: #757575;
-  /* Material Grey 600 */
-  background-color: rgba(66, 66, 66, 0.9);
-  /* Material Grey 800 with opacity */
+.user-header-sender {
+  color: white;
+}
+.chat-messages::-webkit-scrollbar {
+  display: none; 
 }
 
-/* 调整滚动条样式 */
-.chat-messages::-webkit-scrollbar-track {
-  background: #333333;
-}
-
-.chat-messages::-webkit-scrollbar-thumb {
-  background: #616161;
-  /* Material Grey 700 */
-}
-
-.chat-messages::-webkit-scrollbar-thumb:hover {
-  background: #757575;
-  /* Material Grey 600 */
-}
 
 /* 调整消息布局 */
 .message-item {
@@ -242,17 +187,6 @@ const scrollToBottom = () => {
 }
 
 /* 调整消息头部样式 */
-.message-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-  font-size: 12px;
-  color: #666;
-}
-
-.message-item.user .message-header {
-  color: rgba(255, 255, 255, 0.8);
-}
 
 /* 合并后的样式 */
 .chat-container {
@@ -268,11 +202,13 @@ const scrollToBottom = () => {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 200px);
   margin-bottom: 80px;
   scroll-behavior: smooth;
   transition: scroll-top 0.3s ease-out;
   will-change: scroll-position;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .message-item {
@@ -292,33 +228,21 @@ const scrollToBottom = () => {
 
 .message-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-  font-size: 12px;
-  color: #666;
-  position: relative;
-}
-
-.user-header {
-  display: flex;
   justify-content: flex-end;
-  align-items: center;
   flex-direction: row-reverse;
-  background-color: rgba(25, 118, 210, 0.1);
-}
-
-.user-header .sender {
-  color: #64b5f6;
-}
-
-.timestamp-container {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -20px;
-  font-size: 12px;
+  gap: 5px;
+  align-items: center;
   color: white;
+  padding: 5px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.timestamp {
+  display: flex;
+  margin-bottom: 5px;
+  color: chartreuse;
+  font-size: 12px;
 }
 
 /* 合并消息卡片样式 */
@@ -348,16 +272,38 @@ const scrollToBottom = () => {
 
 /* 合并输入区域样式 */
 .chat-input {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: absolute;
+  bottom: 10px;
+  left: 20px;
+  right: 20px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 20px;
-  background-color: #fff;
+  gap: 5px;
+  align-items: center;
+  padding: 7px;
+  background-color: #1e1e1e;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
   z-index: 100;
+  border-radius: 10px;
+  border: 2px solid palegreen;
+}
+
+.chat-input-button {
+  margin-left: auto;
+  margin-right: 5px;
+  padding: 5px;
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.chat-input-button:hover {
+  border-radius: 5px;
+  background-color: #a8a8a8;
+  cursor: pointer;
 }
 
 .chat-input .el-input {
@@ -366,68 +312,36 @@ const scrollToBottom = () => {
 }
 
 .chat-input .el-input :deep(.el-input__inner) {
-  border-radius: 20px;
-  padding: 12px 20px;
-  border: 1px solid #e4e7ed;
   transition: all 0.3s ease;
   min-height: 40px;
-  background-color: #333333;
-  border-color: #444444;
-  color: #ffffff;
+  border: 0;
+  background-color: transparent !important;
+  box-shadow: none;
+  /* border-color: #444444; */
+  color: white;
 }
 
-/* 合并按钮样式 */
-.chat-input .el-button {
-  background-color: #1976d2;
-  border-color: #1976d2;
-  color: #ffffff;
+.chat-input .el-input :deep(.el-input__wrapper) {
+  transition: all 0.3s ease;
+  min-height: 40px;
+  background-color: transparent !important;
+  box-shadow: none;
+  border: 0;
+  /* border-color: #444444; */
+  color: white;
 }
 
-.chat-input .el-button:hover {
-  background-color: #1565c0;
-  border-color: #1565c0;
-}
 
-.chat-input .el-button:active {
-  background-color: #0d47a1;
-  border-color: #0d47a1;
-}
-
-.chat-input .el-button.is-disabled {
-  background-color: #424242;
-  border-color: #424242;
-  color: #757575;
-}
-
-/* 合并滚动条样式 */
-.chat-messages::-webkit-scrollbar {
-  width: 8px;
-}
-
-.chat-messages::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.chat-messages::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-}
-
-.chat-messages::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
 
 /* 合并用户头像样式 */
 .user-avatar {
-  position: absolute;
+  /* position: absolute;
   top: -10px;
   right: -10px;
   width: 40px;
   height: 40px;
   border: 2px solid #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); */
 }
 
 /* 合并消息动画 */
