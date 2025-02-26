@@ -3,6 +3,7 @@ import { llmOpenAI } from "../core";
 import { AutocompleteDebouncer } from "../core/util/debouncer";
 import { DAIKCompletionProvider } from "../core/provider/autoCompetion/DAIKCompletionProvider";
 import { SidebarProvider } from "../core/provider/sideBarView/sibeBarViewProvider";
+import { VsCodeWebviewProtocol } from "./webviewProtocol";
 
 export class VsCodeExtension {
   // openai客户端初始化
@@ -11,7 +12,7 @@ export class VsCodeExtension {
   private setting: any;
   // 防抖函数
   private debouncer: AutocompleteDebouncer;
-
+  
   constructor(context: vscode.ExtensionContext) {
     // 需要获取配置信息
     // vscode.workspace.getConfiguration("fim");
@@ -38,22 +39,21 @@ export class VsCodeExtension {
     this.llmOpenAI = new llmOpenAI(this.setting);
     // 防抖函数配置
     this.debouncer = new AutocompleteDebouncer();
+    // 构建sieBarWebview
+    const sideBarWebview = new SidebarProvider(context.extensionUri, context);
     // 注册行内补全
     context.subscriptions.push(
       vscode.languages.registerInlineCompletionItemProvider(
         [{ pattern: "**" }],
-        new DAIKCompletionProvider(this.llmOpenAI, this.debouncer)
+        new DAIKCompletionProvider(this.llmOpenAI, this.debouncer,sideBarWebview.webviewProtocol)
       )
     );
-    const sideBarWebview = new SidebarProvider(context.extensionUri,context);
-    //注册容器页面view
-    try {
-      context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(SidebarProvider.viewId,sideBarWebview)
-      );
-    } catch (error) {
-      console.log('errrr',error);
-    }
-
+    //注册容器sidBarWebview
+    context.subscriptions.push(
+      vscode.window.registerWebviewViewProvider(
+        SidebarProvider.viewId,
+        sideBarWebview
+      )
+    );
   }
 }

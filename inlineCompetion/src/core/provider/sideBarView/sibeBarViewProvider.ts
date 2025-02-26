@@ -1,36 +1,54 @@
 import * as vscode from "vscode";
+import { VsCodeWebviewProtocol } from "../../../extension/webviewProtocol";
 export class SidebarProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = "daik-view-sidebar";
-  constructor(protected _extensionUri: vscode.Uri,private _context: vscode.ExtensionContext) {}
-
+  //通信
+  public webviewProtocol: VsCodeWebviewProtocol;
+  private _webview?: vscode.Webview;
+  private _webviewView?: vscode.WebviewView;
+  constructor(
+    protected _extensionUri: vscode.Uri,
+    private _context: vscode.ExtensionContext
+  ) {
+    // 通信初始化
+    this.webviewProtocol = new VsCodeWebviewProtocol();
+  }
+  get isVisible() {
+    return this._webviewView?.visible;
+  }
+  get webview() {
+    return this._webview;
+  }
   public resolveWebviewView(webviewView: vscode.WebviewView) {
-    console.log('this.context.extensionUri',this._extensionUri);
+    this._webviewView = webviewView;
+    this._webview = webviewView.webview;
+    // html内容
+    webviewView.webview.html = this.getSidebarContent(webviewView.webview);
+  }
+  private getSidebarContent(webview: vscode.Webview) {
     // 配置
-    webviewView.webview.options = {
+    webview.options = {
       enableScripts: true,
       localResourceRoots: [this._extensionUri],
     };
-    // html内容
-    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-	webviewView.webview.onDidReceiveMessage((msg) => {
-		console.log('接收到的vue页面值：',msg);
-	});
-	webviewView.webview.postMessage({
-		command: 'wo cao le',
-		text: "我你爹"
-	});
-
-  }
-	private _getHtmlForWebview(webview: vscode.Webview) {
-		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-		//js资源
-		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'gui/assets', 'index.js'));
-		console.log('vscode::',this._context.extensionMode, 'meiju:',vscode.ExtensionMode.Development,"ce","");
-		//css
-		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'gui/assets', 'index.css'));
-		// 接收发送内容制定
-		// handleMessages(webview)
-		return `
+    //js资源
+    let scriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "gui/assets", "index.js")
+    );
+    console.log(
+      "vscode::",
+      this._context.extensionMode,
+      "meiju:",
+      vscode.ExtensionMode.Development,
+      "ce",
+      ""
+    );
+    //css
+    let styleMainUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "gui/assets", "index.css")
+    );
+    this.webviewProtocol.webview = webview;
+    return `
 			<!DOCTYPE html>
 			<html lang="en">
 				<head>
@@ -46,10 +64,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 						const vscode = acquireVsCodeApi();
 					</script>
 
-					<div id="app">123</div>
+					<div id="app"></div>
 
 					<script type="module" src="${scriptUri}"></script>
 				</body>
 			</html>`;
-	}
+  }
 }

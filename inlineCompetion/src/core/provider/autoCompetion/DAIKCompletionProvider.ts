@@ -5,15 +5,18 @@ import {
 } from "./renderPrompt";
 import { AutocompleteDebouncer } from "../../util/debouncer";
 import { llmOpenAI } from "../..";
+import { VsCodeWebviewProtocol } from "../../../extension/webviewProtocol";
 
 export class DAIKCompletionProvider
   implements vscode.InlineCompletionItemProvider
 {
   private llmOpenAI: llmOpenAI;
   private debouncer: AutocompleteDebouncer;
-  constructor(llmOpenAI: llmOpenAI, debouncer: AutocompleteDebouncer) {
+  private sidebarProtocol:VsCodeWebviewProtocol;
+  constructor(llmOpenAI: llmOpenAI, debouncer: AutocompleteDebouncer,sidebarProtocol:VsCodeWebviewProtocol) {
     this.debouncer = debouncer;
     this.llmOpenAI = llmOpenAI;
+    this.sidebarProtocol = sidebarProtocol;
   }
   public async provideInlineCompletionItems(
     document: vscode.TextDocument,
@@ -49,6 +52,7 @@ export class DAIKCompletionProvider
         throw new Error("model is undefined");
       }
       const respData = await model.fimWithOpenAI(prefix, suffix);
+      this.sidebarProtocol.send('inlinecompetion',respData,'123');
       const range = new vscode.Range(position, position);
       items.push(new vscode.InlineCompletionItem(respData, range));
       return items;
