@@ -1,5 +1,14 @@
 import * as vscode from "vscode";
 import { VsCodeWebviewProtocol } from "../../../extension/webviewProtocol";
+export function getNonce() {
+  let text = "";
+  const possible =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (let i = 0; i < 32; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+}
 export class SidebarProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = "daik-view-sidebar";
   //通信
@@ -30,23 +39,22 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     webview.options = {
       enableScripts: true,
       localResourceRoots: [this._extensionUri],
+      portMapping:[
+        {
+          extensionHostPort: 6789,
+          webviewPort: 6789
+        }
+      ]
     };
     //js资源
-    let scriptUri = webview.asWebviewUri(
+    const scriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "gui/assets", "index.js")
     );
-    console.log(
-      "vscode::",
-      this._context.extensionMode,
-      "meiju:",
-      vscode.ExtensionMode.Development,
-      "ce",
-      ""
-    );
     //css
-    let styleMainUri = webview.asWebviewUri(
+    const styleUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "gui/assets", "index.css")
     );
+    const nonce = getNonce();
     this.webviewProtocol.webview = webview;
     return `
 			<!DOCTYPE html>
@@ -55,7 +63,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 					<meta charset="UTF-8">
 					<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-					<link href="${styleMainUri}" rel="stylesheet">
+					<link href="${styleUri}" rel="stylesheet">
 
 					<title>Base View Extension</title>
 				</head>
@@ -66,7 +74,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
 					<div id="app"></div>
 
-					<script type="module" src="${scriptUri}"></script>
+					<script type="module" nonce="${nonce}" src="${scriptUri}"></script>
 				</body>
 			</html>`;
   }

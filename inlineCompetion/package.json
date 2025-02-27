@@ -1,5 +1,6 @@
 {
   "name": "inlineCompetion",
+  "icon": "media/xu.png",
   "displayName": "inline-competion",
   "description": "inline autoComplete",
   "version": "0.0.1",
@@ -10,8 +11,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand: daik.helloWorld",
-    "onLanguage"
+    "onView:daik-view"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -20,7 +20,7 @@
         {
           "id": "daik-view",
           "title": "daik",
-          "icon": "src/assets/img/activitybar/xu.png"
+          "icon": "media/xu.png"
         }
       ]
     },
@@ -30,8 +30,9 @@
           "type": "webview",
           "id": "daik-view-sidebar",
           "name": "容器名称",
-          "icon": "src/assets/img/activitybar/xu.png",
-          "contextualTitle": "容器view视图"
+          "icon": "media/xu.png",
+          "contextualTitle": "容器view视图",
+          "visibility": "visible"
         }
       ]
     },
@@ -87,6 +88,7 @@
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "pack:vsix": "npx vsce package --no-dependencies",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test"
@@ -99,6 +101,7 @@
     "@typescript-eslint/parser": "^8.22.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.2.2",
     "esbuild": "^0.24.2",
     "eslint": "^9.19.0",
     "npm-run-all": "^4.1.5",

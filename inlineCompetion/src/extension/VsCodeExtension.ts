@@ -52,7 +52,10 @@ export class VsCodeExtension {
     context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(
         SidebarProvider.viewId,
-        sideBarWebview
+        sideBarWebview,
+        {
+          webviewOptions: { retainContextWhenHidden: true },
+        },
       )
     );
   }

@@ -35,10 +35,13 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, onMounted } from 'vue';
 import chatIcon from "../assets/chat.png"
 import userIcon from "../assets/user.png"
-
+onMounted(() => {
+  console.log('重新渲染了');
+  scrollToBottom(); // 页面加载后自动滚动到底部
+})
 
 // 定义聊天消息数组
 const chatMessages = ref<any>([
