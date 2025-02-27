@@ -2,12 +2,23 @@
 import OpenAI from "openai";
 import { Qwen } from "./llms";
 import { LLM } from "./llms/llms";
+// 代码补全模型
 class FimModel {
   model: LLM | undefined ;
   constructor(fimSetting:any) {
 
     if (fimSetting.type === 'openai') {
         this.model = selectModelByModelType(fimSetting);
+    }
+  }
+}
+
+
+class ChatModel {
+  model: LLM | undefined ;
+  constructor(chatSetting:any) {
+    if (chatSetting.type === 'openai') {
+        this.model = selectModelByModelType(chatSetting);
     }
   }
 }
@@ -32,10 +43,10 @@ export class llmOpenAI {
   // fim模型
     fim: FimModel;
   // chat模型
-//   private chat: any;
+    chat: ChatModel;
 
   constructor(setting: any) {
     this.fim = new FimModel(setting.fim);
-    // this.chat = new ChatModel(setting.chat);
+    this.chat = new ChatModel(setting.chat);
   }
 }

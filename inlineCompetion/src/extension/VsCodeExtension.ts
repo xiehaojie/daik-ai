@@ -12,13 +12,30 @@ export class VsCodeExtension {
   private setting: any;
   // 防抖函数
   private debouncer: AutocompleteDebouncer;
-  
+
   constructor(context: vscode.ExtensionContext) {
     // 需要获取配置信息
     // vscode.workspace.getConfiguration("fim");
     // 获取配置列表
     this.setting = {
+      // 补全模型
       fim: {
+        type: "openai",
+        oAuth: {
+          appId: "",
+          apiKey: "",
+          secretKey: "",
+        },
+        modelType: "qwen",
+        openAI: {
+          apiKey: "sk-qewbjoukxuvvykxbssrtvsytvtghodzqmurainijcizrjtzy",
+          baseURL: "https://api.siliconflow.cn/v1",
+          model: "Qwen/Qwen2.5-Coder-7B-Instruct",
+        },
+        stream: {},
+      },
+      // 聊天模型
+      chat: {
         type: "openai",
         oAuth: {
           appId: "",
@@ -45,7 +62,11 @@ export class VsCodeExtension {
     context.subscriptions.push(
       vscode.languages.registerInlineCompletionItemProvider(
         [{ pattern: "**" }],
-        new DAIKCompletionProvider(this.llmOpenAI, this.debouncer,sideBarWebview.webviewProtocol)
+        new DAIKCompletionProvider(
+          this.llmOpenAI,
+          this.debouncer,
+          sideBarWebview.webviewProtocol
+        )
       )
     );
     //注册容器sidBarWebview
@@ -55,8 +76,24 @@ export class VsCodeExtension {
         sideBarWebview,
         {
           webviewOptions: { retainContextWhenHidden: true },
-        },
+        }
       )
+    );
+
+    // 指令创建
+    const getChatAnswer = async (msg: any) => {
+      console.log("聊天内容：：", msg);
+      const ans = await this.llmOpenAI.chat.model?.chat([msg[0].data]);
+      console.log("指令返回给webview:", ans);
+      sideBarWebview.webviewProtocol.send(
+        msg[0].messageType,
+        ans,
+        msg[0].messageId
+      );
+    };
+    // 注册指令
+    context.subscriptions.push(
+      vscode.commands.registerCommand("daik.getChatAnswer", getChatAnswer)
     );
   }
 }

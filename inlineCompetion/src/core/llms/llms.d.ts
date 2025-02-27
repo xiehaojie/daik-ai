@@ -6,7 +6,7 @@ export interface LLMBase{
 
 
 export interface LLM  extends LLMBase{
-    chat (): Promise<string>;
+    chat (message:any[]): Promise<string>;
     fimWithStream(): Promise<string>;
     fimWithOpenAI(
         prefix:string, suffix:string

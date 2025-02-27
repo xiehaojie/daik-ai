@@ -1,7 +1,5 @@
-
-
-
 import "vscode-webview";
+import { v4 as uuidv4 } from "uuid";
 declare const vscode: any;
 
 interface vscode {
@@ -9,69 +7,82 @@ interface vscode {
 }
 
 export interface IIdeMessenger {
-  send(msg:any): void;
-  receive(cb:Function):void;
-  
-  
+  send(messageType: string, data: any, messageId: string): void;
+  receive(cb: Function): void;
+  request(messageType: string, data: any): Promise<any>;
 
-//   request<T extends keyof FromWebviewProtocol>(
-//     messageType: T,
-//     data: FromWebviewProtocol[T][0],
-//   ): Promise<WebviewSingleProtocolMessage<T>>;
+  //   streamRequest<T extends keyof FromWebviewProtocol>(
+  //     messageType: T,
+  //     data: FromWebviewProtocol[T][0],
+  //     cancelToken?: AbortSignal,
+  //   ): AsyncGenerator<
+  //     GeneratorYieldType<FromWebviewProtocol[T][1]>[],
+  //     GeneratorReturnType<FromWebviewProtocol[T][1]> | undefined
+  //   >;
 
-//   streamRequest<T extends keyof FromWebviewProtocol>(
-//     messageType: T,
-//     data: FromWebviewProtocol[T][0],
-//     cancelToken?: AbortSignal,
-//   ): AsyncGenerator<
-//     GeneratorYieldType<FromWebviewProtocol[T][1]>[],
-//     GeneratorReturnType<FromWebviewProtocol[T][1]> | undefined
-//   >;
+  //   llmStreamChat(
+  //     modelTitle: string,
+  //     cancelToken: AbortSignal | undefined,
+  //     messages: ChatMessage[],
+  //     options?: LLMFullCompletionOptions,
+  //   ): AsyncGenerator<ChatMessage[], PromptLog | undefined>;
 
-//   llmStreamChat(
-//     modelTitle: string,
-//     cancelToken: AbortSignal | undefined,
-//     messages: ChatMessage[],
-//     options?: LLMFullCompletionOptions,
-//   ): AsyncGenerator<ChatMessage[], PromptLog | undefined>;
-
-//   ide: IDE;
+  //   ide: IDE;
 }
 
 export class IdeMessenger implements IIdeMessenger {
-  private _postToIde(msg:any) {
+  private _postToIde(msg: any) {
     vscode.postMessage(msg);
   }
 
-  send(msg:any) {
+  send(messageType: string, data: any, messageId: string) {
     try {
-      this._postToIde(msg);
+      this._postToIde({ messageType, data, messageId });
     } catch (error) {
-      console.log('postError:',error);
+      console.log("postError:", error);
     }
   }
 
-  receive(cb:Function): void {
-    window.addEventListener('message', event => {
-      cb(event.data)
-  });
-    // return new Promise((resolve) => {
-    //   const handler = (event:any) => {
-    //       resolve(event.data);
-    //   };
-    
-    //   this.post(messageType, data, messageId);
-    // });
+  receive(cb: Function): void {
+    window.addEventListener("message", (event) => {
+      cb(event.data);
+    });
   }
 
-  /**
-   * Because of weird type stuff, we're actually yielding an array of the things
-   * that are streamed. For example, if the return type here says
-   * AsyncGenerator<ChatMessage>, then it's actually AsyncGenerator<ChatMessage[]>.
-   * This needs to be handled by the caller.
-   *
-   * Using unknown for now to make this more explicit
-   */
+  request(messageType: string, data: any): Promise<any> {
+    const messageId = uuidv4();
+
+    return new Promise((resolve) => {
+      const handler = (event: any) => {
+        console.log('eeeeee',event.data);
+        if (event.data.messageId === messageId) {
+          // 移除监听器
+          window.removeEventListener("message", handler);
+          resolve(event.data.data);
+        }
+      };
+      // 添加监听器
+      window.addEventListener("message", handler);
+      this.send(messageType, data, messageId);
+    });
+  }
+  // return new Promise((resolve) => {
+  //   const handler = (event:any) => {
+  //       resolve(event.data);
+  //   };
+
+  //   this.post(messageType, data, messageId);
+  // });
+}
+
+/**
+ * Because of weird type stuff, we're actually yielding an array of the things
+ * that are streamed. For example, if the return type here says
+ * AsyncGenerator<ChatMessage>, then it's actually AsyncGenerator<ChatMessage[]>.
+ * This needs to be handled by the caller.
+ *
+ * Using unknown for now to make this more explicit
+ */
 //   async *streamRequest<T extends keyof FromWebviewProtocol>(
 //     messageType: T,
 //     data: FromWebviewProtocol[T][0],
@@ -171,6 +182,5 @@ export class IdeMessenger implements IIdeMessenger {
 //     }
 //     return next.value;
 //   }
-}
 
 export const ideMessenger = new IdeMessenger();

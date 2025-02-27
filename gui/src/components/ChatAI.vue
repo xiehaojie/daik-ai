@@ -8,20 +8,17 @@
           <div :class="[message.sender === 'user' ? 'user-header' : 'message-header']">
             <span :class="[message.sender === 'user' ? 'user-header-sender' : 'message-header-sender']">{{
               message.sender
-            }}</span>
+              }}</span>
             <el-avatar v-if="message.sender === 'user'" class="user-avatar" :src="userIcon" />
             <el-avatar v-else class="user-avatar" :src="chatIcon" />
-
           </div>
-          <el-card :class="['message-bubble', message.sender === 'user' ? 'user-bubble' : 'ai-bubble']">
+          <div :class="['message-bubble', message.sender === 'user' ? 'user-bubble' : 'ai-bubble']">
             <div class="timestamp">{{ message.timestamp }}</div>
             <div class="message-content" :style="{ whiteSpace: 'pre-wrap' }">
               {{ message.content }}
             </div>
-          </el-card>
-
+          </div>
         </div>
-
       </TransitionGroup>
     </div>
     <!-- 聊天输入区域 -->
@@ -38,6 +35,7 @@
 import { ref, nextTick, onMounted } from 'vue';
 import chatIcon from "../assets/chat.png"
 import userIcon from "../assets/user.png"
+import { getAnswers } from '../api/chartApi';
 onMounted(() => {
   console.log('重新渲染了');
   scrollToBottom(); // 页面加载后自动滚动到底部
@@ -65,9 +63,10 @@ const sendMessage = async () => {
       content: inputMessage.value,
       timestamp: new Date().toLocaleTimeString()
     });
+     const ans = await getAnswers({role: "user", content: inputMessage.value});
 
     // 滚动到底部
-    await nextTick();
+    await nextTick(); 
     scrollToBottom();
 
     isLoading.value = true;
@@ -75,7 +74,7 @@ const sendMessage = async () => {
     setTimeout(async () => {
       chatMessages.value.push({
         sender: 'DAIK',
-        content: '这是 AI 的回复示例。',
+        content: ans,
         timestamp: new Date().toLocaleTimeString()
       });
       isLoading.value = false;
@@ -117,25 +116,8 @@ const scrollToBottom = () => {
 };
 </script>
 <style scoped>
-/* 调整消息卡片样式 */
-.message-item.user .el-card {
-  background-color: #1976d2;
-  /* Material Blue 700 */
-  color: #ffffff;
-  position: relative;
-  /* 添加相对定位 */
-}
-
-.message-item.ai .el-card {
-  background-color: #424242;
-  /* Material Grey 800 */
-  color: #ffffff;
-  position: relative;
-  /* 添加相对定位 */
-}
-
 /* 调整消息卡片阴影 */
-.el-card {
+.message-item {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
@@ -145,13 +127,15 @@ const scrollToBottom = () => {
 }
 
 .user-header {
+  position: relative;
+  right: -30px;
   display: flex;
   justify-content: flex-end;
   gap: 5px;
   align-items: center;
   color: white;
   padding: 5px;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 600;
 }
 
@@ -159,37 +143,14 @@ const scrollToBottom = () => {
   color: white;
 }
 .chat-messages::-webkit-scrollbar {
-  display: none; 
+  display: none;
 }
-
 
 /* 调整消息布局 */
 .message-item {
   margin-bottom: 15px;
   max-width: 70%;
 }
-
-.message-item.user {
-  margin-left: auto;
-  /* 用户消息靠右 */
-}
-
-.message-item.ai {
-  margin-right: auto;
-  /* AI消息靠左 */
-}
-
-/* 优化消息卡片样式 */
-.message-item.user .el-card {
-  /* background-color: #409eff; */
-  color: white;
-}
-
-.message-item.ai .el-card {
-  background-color: #f0f0f0;
-}
-
-/* 调整消息头部样式 */
 
 /* 合并后的样式 */
 .chat-container {
@@ -218,18 +179,9 @@ const scrollToBottom = () => {
   margin-bottom: 15px;
   max-width: 70%;
 }
-
-.message-item.user {
-  margin-left: auto;
-  padding-top: 20px;
-  text-align: right;
-}
-
-.message-item.ai {
-  margin-right: auto;
-}
-
 .message-header {
+  position: relative;
+  left: -30px;
   display: flex;
   justify-content: flex-end;
   flex-direction: row-reverse;
@@ -237,7 +189,7 @@ const scrollToBottom = () => {
   align-items: center;
   color: white;
   padding: 5px;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 600;
 }
 
@@ -249,28 +201,45 @@ const scrollToBottom = () => {
 }
 
 /* 合并消息卡片样式 */
-.message-item .el-card {
+.message-item {
   padding: 12px 16px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
-.message-item.user .el-card {
-  background-color: #333333;
-  color: white;
-  border-radius: 20px 0 20px 20px;
+.message-item.user {
   margin-left: auto;
+  padding-top: 20px;
+  text-align: right;
+  /* background-color: #333333; */
+  color: white;
+
   width: fit-content;
   /* max-width: 80%; */
 }
-
-.message-item.ai .el-card {
+.message-bubble{
   background-color: #333333;
+  padding: 10px;
+}
+.message-bubble.user-bubble{
+  border-radius: 10px 0 10px 10px;
+}
+.message-bubble.ai-bubble{
+  border-radius: 0 10px 10px 10px;
+}
+.message-content{
+  width: fit-content;
+}
+.message-item.ai {
+  /* Material Grey 800 */
+  position: relative;
+  /* background-color: #333333; */
   /* 稍浅的灰色 */
   color: white;
   /* 深色文字 */
-  border-radius: 0 20px 20px 20px;
+
   max-width: 100%;
   width: fit-content;
+  margin-right: auto;
 }
 
 /* 合并输入区域样式 */

@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "compile:gui":"cd gui && pnpm run build",
-    "watch:extension":"cd inlineCompetion && pnpm run compile",
+    "compile:gui": "cd gui && pnpm run build",
+    "watch:extension": "cd inlineCompetion && pnpm run compile",
     "watch": "concurrently \"pnpm run watch:extension\" \"pnpm run compile:gui\""
   },
   "keywords": [],
@@ -13,5 +13,8 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "uuid": "^11.1.0"
   }
 }

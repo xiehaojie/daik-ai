@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { ideMessenger } from '../context/ideMessenger';
+// import { ideMessenger } from '../api/ideMessenger';
 defineProps<{ msg: string }>()
 const count = ref(0)
 const infoRef = ref('')
 const onClick = ()=>{
   count.value +=1
-  ideMessenger.send(count.value)
+  // ideMessenger.send(count.value)
 }
 onMounted(() => {
 })

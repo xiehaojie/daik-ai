@@ -48,6 +48,10 @@
       {
         "command": "extension.inline-completion-settings",
         "title": "补全设置"
+      },
+      {
+        "command": "daik.getChatAnswer",
+        "title": "获取聊天内容"
       }
     ],
     "keybindings": [
