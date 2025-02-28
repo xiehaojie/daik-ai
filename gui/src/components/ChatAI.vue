@@ -43,7 +43,7 @@ onMounted(() => {
 
 // 定义聊天消息数组
 const chatMessages = ref<any>([
-  { sender: 'DAIK', content: '欢迎使用聊天功能！' }
+  { sender: 'DAIK', content: '您好，欢迎使用聊天功能！' }
 ]);
 
 const chatMessagesContainer = ref<HTMLElement | null>(null);

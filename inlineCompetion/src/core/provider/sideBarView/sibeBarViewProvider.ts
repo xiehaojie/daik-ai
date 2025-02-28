@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import { VsCodeWebviewProtocol } from "../../../extension/webviewProtocol";
+import * as path from "path";
+import * as chokidar from "chokidar";
 export function getNonce() {
   let text = "";
   const possible =
@@ -33,18 +35,44 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     this._webview = webviewView.webview;
     // html内容
     webviewView.webview.html = this.getSidebarContent(webviewView.webview);
+    // 判断环境
+    if (process.env.NODE_ENV === "development") {
+      // 监听静态资源变化
+      const staticDir = path.join(this._context.extensionPath, "gui");
+      const watcher = chokidar.watch(staticDir, {
+        ignored: /(^|[\/\\])\../, // 忽略隐藏文件
+        persistent: true,
+        ignoreInitial: true,
+      });
+      const fileChange = (filePath: string) => {
+        console.log("file123", filePath);
+        webviewView.webview.html = this.getSidebarContent(webviewView.webview);
+        // panel.webview.postMessage({
+        //   type: 'static-resource-update',
+        //   file: path.basename(filePath)
+        // });
+      };
+      // 处理文件变化事件
+      watcher
+        .on("add", (file) => fileChange(file))
+        .on("change", (file) => fileChange(file))
+        .on("unlink", (file) => fileChange(file));
+      this._webviewView.onDidDispose(() => {
+        watcher.close();
+      });
+    }
   }
   private getSidebarContent(webview: vscode.Webview) {
     // 配置
     webview.options = {
       enableScripts: true,
       localResourceRoots: [this._extensionUri],
-      portMapping:[
+      portMapping: [
         {
           extensionHostPort: 6789,
-          webviewPort: 6789
-        }
-      ]
+          webviewPort: 6789,
+        },
+      ],
     };
     //js资源
     const scriptUri = webview.asWebviewUri(

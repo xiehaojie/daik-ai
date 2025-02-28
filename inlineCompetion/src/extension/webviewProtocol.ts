@@ -20,7 +20,6 @@ export class VsCodeWebviewProtocol {
     this._webview = webView;
     this._webviewListener?.dispose();
     this._webviewListener = this._webview.onDidReceiveMessage((event:any)=>{
-        // webview 接收到数据后有什么操作？
         console.log('接收到的vue页面值：',event);
         if (event.messageType) {
           vscode.commands.executeCommand(event.messageType,[event]);
