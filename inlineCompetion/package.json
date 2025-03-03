@@ -1,8 +1,8 @@
 {
-  "name": "inlineCompetion",
+  "name": "daik",
   "icon": "media/xu.png",
-  "displayName": "inline-competion",
-  "description": "inline autoComplete",
+  "displayName": "daik",
+  "description": "A tool for assisting code development, called Don't Ask I Know.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.97.0"
@@ -52,6 +52,16 @@
       {
         "command": "daik.getChatAnswer",
         "title": "获取聊天内容"
+      },
+      {
+        "command": "daik.openSetting",
+        "title": "设置",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "daik.more",
+        "title": "更多",
+        "icon": "$(ellipsis)"
       }
     ],
     "keybindings": [

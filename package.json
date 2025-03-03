@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "install:all": "concurrently  \"cd gui && pnpm install\"  \"cd inlineCompetion && pnpm install\"", 
     "compile:gui": "cd gui & pnpm run build",
     "compile:extension": "cd inlineCompetion && pnpm run compile",
     "watch:gui": "cd gui && pnpm run dev",
